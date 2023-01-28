@@ -1,8 +1,10 @@
 -D LANGUAGE=en_us
 -D MESSAGESTYLE=neu
+-D __DEBUG_PATCH_LOADER
 -Fy obj -Fo obj
 -o games/game.t3
 -lib system
 -lib adv3/adv3
 -lib ../patchLoader
 -source src/sample.t
+-source dynfunc.t

@@ -23,18 +23,27 @@ patchLoaderModuleID: ModuleID {
 }
 
 transient patchObj: object {
+	patchFile = 'patchBootstrap.t'
+
 	bootstrapFunc = nil;
 	compilePatches = nil;
 	applyPatches = nil;
 
-	patchFile = 'patchBootstrap.t'
+	_base64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
 	bootstrap() {
 		try {
 			local fileHandle, line, patchBuf;
 
-			fileHandle = File.openTextFile(patchFile,
-				FileAccessRead);
+			try {
+				fileHandle = File.openTextFile(patchFile,
+					FileAccessRead);
+			}
+			catch(Exception e) {
+				_debug('Patch file <q><<patchFile>></q> not
+					found. ');
+				return;
+			}
 			patchBuf = new StringBuffer(fileHandle.getFileSize());
 			line = fileHandle.readFile();
             
@@ -48,9 +57,48 @@ transient patchObj: object {
 				Compiler.compile(toString(patchBuf)));
 		}
 		catch (Exception e) {
-			"\b[Could not bootstrap patcher: <<e.displayException()>>]\b";
+			_debug('Failed to load patch bootstrap:
+				<<e.displayException()>>');
 		}
 	}
+
+	decode(str) {
+		local c0, c1, c2, e0, e1, e2, e3, i, r;
+
+		r = '';
+		i = 1;
+		str = rexReplace('[^A-Za-z0-9\+\/\=]', str, '');
+		while(i <= str.length) {
+			e0 = _base64.find(str.substr(i, 1)) - 1;
+			e1 = _base64.find(str.substr(i + 1, 1)) - 1;
+			e2 = _base64.find(str.substr(i + 2, 1)) - 1;
+			e3 = _base64.find(str.substr(i + 3, 1)) - 1;
+
+			i += 4;
+
+			c0 = (e0 << 2) | (e1 >> 4);
+			c1 = ((e1 & 15) << 4) | (e2 >> 2);
+			c2 = ((e2 & 3) << 6) | e3;
+
+			r = r + makeString(c0);
+
+			if(e2 != 64) {
+				r = r + makeString(c1);
+			}
+			if(e3 != 64) {
+				r = r + makeString(c2);
+			}
+		}
+		return(r);
+	}
+
+#ifdef __DEBUG_PATCH_LOADER
+	_debug(str?) {
+		"\bpatchLoader:  <<str>>\b ";
+	}
+#else // __DEBUG_PATCH_LOADER
+	_debug(str?) {}
+#endif // __DEBUG_PATCH_LOADER
 }
 
 // Re-apply all patches after every restore.
