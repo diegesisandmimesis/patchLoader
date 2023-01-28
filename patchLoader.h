@@ -8,3 +8,5 @@
 // By default, we use base64 encoded patch files.  Comment the following
 // line out to disable this.
 #define PATCH_LOADER_USE_BASE64
+
+//#define PATCH_LOADER_USE_CIPHER

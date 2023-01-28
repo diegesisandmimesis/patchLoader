@@ -44,7 +44,7 @@ modify patchLoader
 				r = r + makeString(c2);
 			}
 		}
-		return(r);
+		return(cipher(r));
 	}
 ;
 

@@ -7,7 +7,7 @@ function() {
 		try {
 			local fileHandle, line, patchBuf;
 
-			fileHandle = File.openTextFile('patch.t',
+			fileHandle = File.openTextFile(patchLoader.patchFile,
 				FileAccessRead, 'utf8');
 
 			patchBuf = new StringBuffer(fileHandle.getFileSize());
@@ -25,9 +25,10 @@ function() {
 				Compiler.compile(patchBuf));
 		}
 		catch(Exception e) {
-			"\b*****ERROR*****
-			\nPatch compile failed: <<e.displayException()>>
-			\n*****ERROR*****\b ";
+			if(e.ofKind(FileNotFoundException))
+				patchLoader._debug('Patch compile failed:', e);
+			else
+				patchLoader._error('Patch compile failed:', e);
 		}
 	});
 }

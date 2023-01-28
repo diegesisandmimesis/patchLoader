@@ -13,8 +13,12 @@
 
 // Make debugging more chatty.
 modify patchLoader
-	_debug(str?) {
-		"\bpatchLoader:  <<str>>\b ";
+	_debug(str, e?) {
+		"\npatchLoader:  <<str>>\n ";
+		if(e) {
+			"\t";
+			e.displayException();
+		}
 	}
 ;
 

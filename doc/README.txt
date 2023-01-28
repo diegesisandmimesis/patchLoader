@@ -11,6 +11,18 @@ ABOUT THIS LIBRARY
 
 LIBRARY CONTENTS
 
+	patchBootstrap.t
+		Example patch bootstrap loader.
+
+	patchBootstrap64.t
+		The example patch bootstrap loader file, base64 encoded.
+
+	patchLoaderBase64.t
+		Source for optional decoder for base64-encoded patch files.
+
+	patchLoaderDebug.t
+		Debugging code for the patch loader.
+
 	patchLoader.h
 		Header file, containing all the #defines for the library.
 
