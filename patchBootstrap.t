@@ -3,7 +3,7 @@
 //
 // Loader for patch file.
 function() {
-	patchObj.setMethod(&compilePatches, method() {
+	patchLoader.setMethod(&compilePatches, method() {
 		try {
 			local fileHandle, line, patchBuf;
 
@@ -19,9 +19,9 @@ function() {
 			}
 			fileHandle.closeFile();
 
-			patchBuf = patchObj.decode(toString(patchBuf));
+			patchBuf = patchLoader.decode(toString(patchBuf));
 
-			patchObj.setMethod(&applyPatches,
+			patchLoader.setMethod(&applyPatches,
 				Compiler.compile(patchBuf));
 		}
 		catch(Exception e) {

@@ -14,6 +14,8 @@
 #include <tadsgen.h>
 #include <dynfunc.h>
 
+#include "patchLoader.h"
+
 // Module ID for the library
 patchLoaderModuleID: ModuleID {
         name = 'Patch Loader Library'
@@ -22,19 +24,23 @@ patchLoaderModuleID: ModuleID {
         listingOrder = 99
 }
 
-transient patchObj: object {
+transient patchLoader: object {
+	// Name of the bootstrap loader.
 	patchFile = 'patchBootstrap.t'
 
 	bootstrapFunc = nil;
 	compilePatches = nil;
 	applyPatches = nil;
 
-	_base64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+	decode(str) { return(str); }
 
 	bootstrap() {
 		try {
 			local fileHandle, line, patchBuf;
 
+			// We wrap the file open in a separate try/catch
+			// block so we can silently ignore the case where
+			// the patch bootloader is absent.
 			try {
 				fileHandle = File.openTextFile(patchFile,
 					FileAccessRead);
@@ -44,6 +50,7 @@ transient patchObj: object {
 					found. ');
 				return;
 			}
+
 			patchBuf = new StringBuffer(fileHandle.getFileSize());
 			line = fileHandle.readFile();
             
@@ -52,9 +59,12 @@ transient patchObj: object {
 				line = fileHandle.readFile();
 			}
 			fileHandle.closeFile();
+
+			//patchBuf = decode(toString(patchBuf));
+			patchBuf = toString(patchBuf);
             
-			patchObj.setMethod(&bootstrapFunc,
-				Compiler.compile(toString(patchBuf)));
+			patchLoader.setMethod(&bootstrapFunc,
+				Compiler.compile(patchBuf));
 		}
 		catch (Exception e) {
 			_debug('Failed to load patch bootstrap:
@@ -62,58 +72,22 @@ transient patchObj: object {
 		}
 	}
 
-	decode(str) {
-		local c0, c1, c2, e0, e1, e2, e3, i, r;
-
-		r = '';
-		i = 1;
-		str = rexReplace('[^A-Za-z0-9\+\/\=]', str, '');
-		while(i <= str.length) {
-			e0 = _base64.find(str.substr(i, 1)) - 1;
-			e1 = _base64.find(str.substr(i + 1, 1)) - 1;
-			e2 = _base64.find(str.substr(i + 2, 1)) - 1;
-			e3 = _base64.find(str.substr(i + 3, 1)) - 1;
-
-			i += 4;
-
-			c0 = (e0 << 2) | (e1 >> 4);
-			c1 = ((e1 & 15) << 4) | (e2 >> 2);
-			c2 = ((e2 & 3) << 6) | e3;
-
-			r = r + makeString(c0);
-
-			if(e2 != 64) {
-				r = r + makeString(c1);
-			}
-			if(e3 != 64) {
-				r = r + makeString(c2);
-			}
-		}
-		return(r);
-	}
-
-#ifdef __DEBUG_PATCH_LOADER
-	_debug(str?) {
-		"\bpatchLoader:  <<str>>\b ";
-	}
-#else // __DEBUG_PATCH_LOADER
 	_debug(str?) {}
-#endif // __DEBUG_PATCH_LOADER
 }
 
 // Re-apply all patches after every restore.
 postRestorePatcher: PostRestoreObject {
 	execute() {
-		patchObj.applyPatches();
+		patchLoader.applyPatches();
 	}
 }
 
 // Apply all patches on every game init.
 initPatcher: InitObject {
 	execute() {
-		patchObj.bootstrap();
-		patchObj.bootstrapFunc();
-		patchObj.compilePatches();
-		patchObj.applyPatches();
+		patchLoader.bootstrap();
+		patchLoader.bootstrapFunc();
+		patchLoader.compilePatches();
+		patchLoader.applyPatches();
 	}
 }
