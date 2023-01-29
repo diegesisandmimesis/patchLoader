@@ -39,7 +39,7 @@ versionInfo:    GameID
 ;
 
 startRoom: Room 'Void'
-        "This is a featureless void."
+        "This is a featureless void. "
 ;
 +me: Person;
 

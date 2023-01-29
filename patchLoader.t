@@ -31,6 +31,10 @@ patchLoaderModuleID: ModuleID {
         listingOrder = 99
 }
 
+class PatchException: FileException
+	displayException() { "verification failed"; }
+;
+
 transient patchLoader: object {
 	// Name of the bootstrap loader file.
 	patchBootstrapFile = 'patchBootstrap.t'
@@ -38,72 +42,81 @@ transient patchLoader: object {
 	// Name of the patch file.
 	patchFile = 'patch.t'
 
-	bootstrapFunc = nil
-	applyPatches = nil
+	bootstrapLoader = nil
+	applyPatch = nil
 
 	decode(str) { return(str); }
 	cipher(str) { return(str); }
 
-	// Default patch compiler.  Overwritten (at runtime) by
-	// patchBootstrap.t, if present in the game directory.
-	compilePatches() {
-		_debug('Applying patch with builtin patch compiler. ');
+	_fileToString(fname) {
+		local buf, fileHandle, line;
+
 		try {
-			local fileHandle, line, patchBuf;
+			fileHandle = File.openTextFile(fname, FileAccessRead,
+				'utf8');
 
-			fileHandle = File.openTextFile(patchFile,
-				FileAccessRead, 'utf8');
+			buf = new StringBuffer(fileHandle.getFileSize());
 
-			patchBuf = new StringBuffer(fileHandle.getFileSize());
 			line = fileHandle.readFile();
 
 			while(line != nil) {
-				patchBuf.append(line);
+				buf.append(line);
 				line = fileHandle.readFile();
 			}
 			fileHandle.closeFile();
-
-			patchBuf = decode(toString(patchBuf));
-
-			setMethod(&applyPatches,
-				Compiler.compile(patchBuf));
 		}
 		catch(Exception e) {
 			if(e.ofKind(FileNotFoundException))
-				_debug('Patch compile failed:', e);
+				_debug('<<fname>>: File load failed:', e);
 			else
-				_error('Patch compile failed:', e);
+				_error('<<fname>>: File load failed:', e);
 		}
+		finally {
+			if(buf != nil)
+				return(toString(buf));
+			else
+				return(nil);
+		}
+	}
+
+	loadPatch() {
+		local buf;
+
+		_debug('Patching with builtin loadPatch()');
+
+		buf = _fileToString(patchFile);
+		if(buf == nil) {
+			_debug('No patch to apply');
+			return;
+		}
+
+		buf = decode(buf);
+
+		if(!verifyPatch(buf))
+			patchVerificationFailed();
+
+		setMethod(&applyPatch, Compiler.compile(buf));
 	}
 
 	bootstrap() {
-		try {
-			local fileHandle, line, patchBuf;
+		local buf;
 
-			fileHandle = File.openTextFile(patchBootstrapFile,
-				FileAccessRead);
-
-			patchBuf = new StringBuffer(fileHandle.getFileSize());
-			line = fileHandle.readFile();
-            
-			while(line != nil) {
-				patchBuf.append(line);
-				line = fileHandle.readFile();
-			}
-			fileHandle.closeFile();
-
-			patchBuf = decode(toString(patchBuf));
-            
-			patchLoader.setMethod(&bootstrapFunc,
-				Compiler.compile(patchBuf));
+		buf = _fileToString(patchBootstrapFile);
+		if(buf == nil) {
+			_debug('No bootloader to apply');
+			return;
 		}
-		catch (Exception e) {
-			if(e.ofKind(FileNotFoundException))
-				_debug('Failed to open bootstrap file:', e);
-			else
-				_error('Failed to open bootstrap file:', e);
-		}
+
+		buf = decode(buf);
+
+		if(!verifyBootstrap(buf))
+			patchVerificationFailed();
+
+		setMethod(&bootstrapLoader, Compiler.compile(buf));
 	}
+
+	verifyBootstrap(buf) { return(true); }
+	verifyPatch(buf) { return(true); }
 
 	_debug(str, e?) {}
 	_error(str?, e?) {
@@ -120,7 +133,7 @@ transient patchLoader: object {
 // Re-apply all patches after every restore.
 postRestorePatcher: PostRestoreObject {
 	execute() {
-		patchLoader.applyPatches();
+		patchLoader.applyPatch();
 	}
 }
 
@@ -128,8 +141,8 @@ postRestorePatcher: PostRestoreObject {
 initPatcher: InitObject {
 	execute() {
 		patchLoader.bootstrap();
-		patchLoader.bootstrapFunc();
-		patchLoader.compilePatches();
-		patchLoader.applyPatches();
+		patchLoader.bootstrapLoader();
+		patchLoader.loadPatch();
+		patchLoader.applyPatch();
 	}
 }

@@ -1,6 +1,8 @@
 -D LANGUAGE=en_us
 -D MESSAGESTYLE=neu
 -D __DEBUG_PATCH_LOADER
+-D PATCH_LOADER_VERIFY
+-D PATCH_LOADER_PASSPHRASE='foozle'
 -Fy obj -Fo obj
 -o games/game.t3
 -lib system

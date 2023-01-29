@@ -3,7 +3,7 @@
 //
 // Loader for patch file.
 function() {
-	patchLoader.setMethod(&compilePatches, method() {
+	patchLoader.setMethod(&loadPatch, method() {
 		try {
 			local fileHandle, line, patchBuf;
 
@@ -21,7 +21,10 @@ function() {
 
 			patchBuf = patchLoader.decode(toString(patchBuf));
 
-			patchLoader.setMethod(&applyPatches,
+			if(!verifyPatch(patchBuf))
+				patchVerificationFailed();
+
+			patchLoader.setMethod(&applyPatch,
 				Compiler.compile(patchBuf));
 		}
 		catch(Exception e) {

@@ -17,6 +17,9 @@ LIBRARY CONTENTS
 	patchBootstrap64.t
 		The example patch bootstrap loader file, base64 encoded.
 
+	patchgen.sh
+		A simple bash script to generate a signed patch file.
+
 	patchLoaderBase64.t
 		Source for optional decoder for base64-encoded patch files.
 
@@ -35,6 +38,9 @@ LIBRARY CONTENTS
 
 	patchLoader.tl
 		The library file for the library.
+
+	patchLoaderVerify.t
+		Rudimentary code signing checks for the patch file.
 
 
 	doc/README.txt
