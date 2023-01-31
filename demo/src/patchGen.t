@@ -4,11 +4,12 @@
 // Version 1.0
 // Copyright 2022 Diegesis & Mimesis
 //
-// This is a very simple demonstration "game" for the patchLoader library.
+// Simple demostration program that looks for a "raw" patch file and
+// outputs it as a signed and encoded patch file.
 //
 // It can be compiled via the included makefile with
 //
-//	# t3make -f makefile.t3m
+//	# t3make -f patchGen.t3m
 //
 // ...or the equivalent, depending on what TADS development environment
 // you're using.
@@ -20,22 +21,12 @@
 #include <en_us.h>
 
 versionInfo:    GameID
-        name = 'patchLoader Library Demo Game'
+        name = 'patchLoader Code Signing Example'
         byline = 'Diegesis & Mimesis'
         desc = 'Demo game for the patchLoader library. '
         version = '1.0'
         IFID = '12345'
-	showAbout() {
-		"This is a simple test game that demonstrates the features
-		of the patchLoader library.
-		<.p>
-		Consult the README.txt document distributed with the library
-		source for a quick summary of how to use the library in your
-		own games.
-		<.p>
-		The library source is also extensively commented in a way
-		intended to make it as readable as possible. ";
-	}
+	showAbout() {}
 ;
 
 // This just prevents the patch loader from attempting to load or apply
@@ -56,6 +47,5 @@ gameMain:       GameMainDef
 			lines:<.p>-----CUT HERE-----\n";
 		"<<buf>>";
 		"\n-----CUT HERE-----\n";
-"DECODE:<.p><<patchLoader.decode(buf)>>\n ";
 	}
 ;
