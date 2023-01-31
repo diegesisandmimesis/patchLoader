@@ -133,10 +133,9 @@ like:
 
 ...to produce ./demo/games/patchGen.t3.  You can then copy your
 patch source to ./demo/games/patchSource.t, and then run the game with
-most interpreters.  It should read the patch source and print the
-signed and encoded patch blob, which you can then cut and paste into
-a file.  This is obviously more of a pain that just using the bash
-script, but it should be fairly portable.
+most interpreters.  It should read the patch source and write the
+signed and encoded patch blob to patch.t (you can edit ./demo/src/patchGen.t
+if you want to change the output file).
 
 
 CREDITS

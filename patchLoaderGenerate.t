@@ -23,6 +23,7 @@
 //
 // ...and use the result.
 //
+#include <file.h>
 #include <tadsgen.h>
 #include <dynfunc.h>
 
@@ -38,11 +39,38 @@ modify patchLoader
 		buf = _fileToString(fname);
 		if(buf == nil) {
 			_debug('Failed to load raw patch file <q>'
-				+ toString(fname) + '</q>. ');
+				+ toString(fname) + '</q>.');
 			return(nil);
 		}
 
 		return(buf);
+	}
+
+	// Write patch to a file, with minimal output.
+	writePatch(buf, fname) {
+		if(_stringToFile(buf, fname) == true)
+			"\nWrote patch to file <q><<toString(fname)>></q>.\n ";
+		else
+			"\nFailed to write to file
+				<q><<toString(fname)>></q>.\n ";
+	}
+
+	// Write a string to a file, with minimal error handling.
+	_stringToFile(buf, fname) {
+		local log;
+
+		try {
+			log = File.openTextFile(fname, FileAccessWrite,
+				'utf8');
+			log.writeFile(buf);
+			log.closeFile();
+
+			return(true);
+		}
+		catch(Exception e) {
+			_error('<<fname>>: File write failed:', e);
+			return(nil);
+		}
 	}
 ;
 

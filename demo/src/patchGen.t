@@ -42,10 +42,10 @@ gameMain:       GameMainDef
 	newGame() {
 		local buf;
 
+		// Load the raw patch file and sign/encode it.
 		buf = patchLoader.generatePatch('patchSource.t');
-		"<.p>Patch (everything between but not including the dashed
-			lines:<.p>-----CUT HERE-----\n";
-		"<<buf>>";
-		"\n-----CUT HERE-----\n";
+
+		// Write the signed/encoded patch to a file.
+		patchLoader.writePatch(buf, 'patch.t');
 	}
 ;
