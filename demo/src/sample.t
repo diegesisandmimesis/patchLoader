@@ -42,5 +42,9 @@ startRoom: Room 'Void'
         "This is a featureless void. "
 ;
 +me: Person;
++pebble: Thing 'small round pebble' 'pebble'
+	// A typo to be patched out.
+	"It's a small, round pobble. "
+;
 
 gameMain:       GameMainDef initialPlayerChar = me;
