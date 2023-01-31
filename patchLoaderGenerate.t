@@ -2,6 +2,26 @@
 //
 // patchLoaderGenerate.t
 //
+// Code for generating a patch file.  This is only meaningful if you've
+// enabled Base64 encoding and/or signature verification (it'll work if
+// you haven't, but the output patch file will just be the input file).
+//
+// NOTE:  You probably DON'T want to build the game itself with the
+// 	PATCH_LOADER_GENERATE flag enabled.  All of the stuff related to
+//	patch generation is desiged to be run in a standalone "game" that
+//	doesn't do anything other than parse the "raw" patch file and
+//	output the encoded and/or signed version.
+//
+// Doing this via TADS3 is a little clunky, so you can alternately use
+// the patchgen.sh script (in the scripts directory) if you're using linux.
+//
+// If you're not adding signatures and you're JUST Base64 encoding the patch,
+// you can just use any random Base64 encoder.  E.g. in most linux
+// distributions you could just do:
+//
+//	# cat patchSource.t | base64 > patch.t
+//
+// ...and use the result.
 //
 #include <tadsgen.h>
 #include <dynfunc.h>
@@ -11,6 +31,7 @@
 #ifdef PATCH_LOADER_GENERATE
 
 modify patchLoader
+	// Read the given input file, returning the contents as a string.
 	generatePatch(fname) {
 		local buf;
 
@@ -27,6 +48,7 @@ modify patchLoader
 
 #ifdef PATCH_LOADER_USE_BASE64
 modify patchLoader
+	// Tweak generatePatch() to Base64 encode the file contents.
 	generatePatch(fname) {
 		return(encode(inherited(fname)));
 	}
@@ -57,7 +79,6 @@ modify patchLoader
 			if(c2 == 0)
 				e3 = 64;
 				
-
 			r += _base64.substr(e0 + 1, 1)
 				+ _base64.substr(e1 + 1, 1)
 				+ _base64.substr(e2 + 1, 1)
@@ -71,10 +92,14 @@ modify patchLoader
 
 #ifdef PATCH_LOADER_VERIFY
 modify patchLoader
+	// Tweak the encode step to add the signature to the blob to be
+	// encoded.
 	encode(buf) {
 		return(inherited(addSignature(buf)));
 	}
 
+	// Compute the signature for the given string, returning
+	// the formatted signature concatenated with the input string.
 	addSignature(buf) {
 		local tmp;
 

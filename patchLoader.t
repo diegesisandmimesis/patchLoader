@@ -118,18 +118,27 @@ patchLoaderModuleID: ModuleID {
 }
 
 transient patchLoader: object {
+	// START OF CONFIGURABLE OPTIONS
+	// 
 	// Name of the bootstrap loader file.
 	patchBootstrapFile = 'patchBootstrap.t'
-
+	//
 	// Name of the patch file.
 	patchFile = 'patch.t'
+	//
+	// END OF CONFIGURABLE OPTIONS
 
+	// Method overwritten by the bootstrap loader, if an external
+	// one is used.
 	bootstrapLoader = nil
+	//
+	// Method overwritten by the patch, if one is loaded.
 	applyPatch = nil
 
-	decode(str, prop?) { return(str); }
-	//encode(str) { return(str); }
+	// Stub method, used if we're not configured to use Base64 encoding.
+	decode(buf, prop?) { return(buf); }
 
+	// Load the given file, returning its contents as a string.
 	_fileToString(fname) {
 		local buf, fileHandle, line;
 
@@ -161,25 +170,12 @@ transient patchLoader: object {
 		}
 	}
 
-	loadPatch() {
-		local buf;
-
-		_debug('Patching with builtin loadPatch()');
-
-		buf = _fileToString(patchFile);
-		if(buf == nil) {
-			_debug('No patch to apply');
-			return;
-		}
-
-		buf = decode(buf, &patchSig);
-
-		if(!verifyPatch(buf))
-			return;
-
-		setMethod(&applyPatch, Compiler.compile(buf));
-	}
-
+	// Try to load the patch loader.
+	// If successful, the contents of the bootstrap file will be
+	// used to overwrite our bootstrapLoader() method.  By default
+	// it does nothing, but we can use it to overwrite the default
+	// loadPatch() method, changing the way the patch itself is
+	// loaded.
 	bootstrap() {
 		local buf;
 
@@ -197,10 +193,50 @@ transient patchLoader: object {
 		setMethod(&bootstrapLoader, Compiler.compile(buf));
 	}
 
+	// Builtin patch loader.
+	// If a custom bootstrap loader is used, it will (probably)
+	// overwrite this method with its own.
+	// If you don't need to change how the patch is loaded, you
+	// don't need to worry about this.
+	loadPatch() {
+		local buf;
+
+		_debug('Patching with builtin loadPatch()');
+
+		// Get the contents of the file as a string.
+		buf = _fileToString(patchFile);
+		if(buf == nil) {
+			_debug('No patch to apply');
+			return;
+		}
+
+		// Decode the string, if necessary.  The second
+		// arg is the property in which to store the patch
+		// signature, if we've been configured to use signatures.
+		buf = decode(buf, &patchSig);
+
+		// Verify the patch, if we've been configured to.
+		if(!verifyPatch(buf))
+			return;
+
+		// Compile the string and make the results our
+		// new applyPatch() method.
+		setMethod(&applyPatch, Compiler.compile(buf));
+	}
+
+	// Stub verification methods, used if we're not configured to do
+	// verification.
 	verifyBootstrap(buf) { return(true); }
 	verifyPatch(buf) { return(true); }
 
+	// Logging methods.
+	//
+	// _debug() is overwritten in patchLoaderDebug.t if we've been
+	// compiled with the __DEBUG_PATCH_LOADER flag.
 	_debug(str, e?) {}
+	//
+	// Format of the error messages is purely cosmetic, so you can
+	// change it if you prefer something else.
 	_error(str?, e?) {
 		"\n*****ERROR APPLYING PATCH*****
 		\n<<str>>\n ";

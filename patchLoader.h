@@ -30,4 +30,12 @@
 #error "string to use as a passphrase for the patch loader."
 #endif // PATCH_LOADER_VERIFY && !PATCH_LOADER_PASSPHRASE
 
+// This is included mostly for completeness.  This adds/modifies things
+// to allow generation of encoded/signed patch files from "raw" patch
+// source.  YOU DO NOT WANT THIS ENABLED WHEN COMPILING YOUR GAME.  This
+// exists so you can make a little standalone "game" that does nothing
+// else except produce a patch file for release.
+// For more information, see patchLoaderGenerate.t.
+//#define PATCH_LOADER_GENERATE
+
 //#define patchVerificationFailed() throw new PatchException()

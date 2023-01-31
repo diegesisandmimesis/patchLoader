@@ -2,6 +2,8 @@
 //
 // patchLoaderDebug.t
 //
+// Debugging stuff.
+//
 #include <tadsgen.h>
 #include <dynfunc.h>
 
@@ -9,8 +11,8 @@
 
 #ifdef __DEBUG_PATCH_LOADER
 
-// Make debugging more chatty.
 modify patchLoader
+	// Make debugging more chatty.
 	_debug(str, e?) {
 		"\npatchLoader:  <<str>>\n ";
 		if(e) {

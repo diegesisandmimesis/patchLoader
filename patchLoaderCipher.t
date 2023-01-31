@@ -2,6 +2,8 @@
 //
 // patchLoaderCipher.t
 //
+// Placeholder for potential symmetric key encryption stuff.
+//
 #include <tadsgen.h>
 #include <dynfunc.h>
 
@@ -10,10 +12,6 @@
 #ifdef PATCH_LOADER_USE_CIPHER
 
 modify patchLoader
-	decode(buf) {
-		buf = inherited(buf);
-		return(buf);
-	}
 ;
 
 #endif // PATCH_LOADER_USE_CIPHER

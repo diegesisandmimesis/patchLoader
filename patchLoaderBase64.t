@@ -2,6 +2,10 @@
 //
 // patchLoaderBase64.t
 //
+// A simple decode-only Base64 implementation in TADS3.  Support for
+// encoding is added in patchLoaderGenerate.t if we're compiled with
+// the PATCH_LOADER_GENERATE flag.
+//
 #include <tadsgen.h>
 #include <dynfunc.h>
 
