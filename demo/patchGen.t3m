@@ -4,10 +4,11 @@
 -D PATCH_LOADER_USE_BASE64
 -D PATCH_LOADER_VERIFY
 -D PATCH_LOADER_PASSPHRASE='foozle'
+-D PATCH_LOADER_GENERATE
 -Fy obj -Fo obj
--o games/game.t3
+-o games/patchGen.t3
 -lib system
 -lib adv3/adv3
 -lib ../patchLoader
--source src/sample.t
+-source src/patchGen.t
 -source dynfunc.t

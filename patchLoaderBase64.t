@@ -2,8 +2,6 @@
 //
 // patchLoaderBase64.t
 //
-#include <file.h>
-#include <strbuf.h>
 #include <tadsgen.h>
 #include <dynfunc.h>
 
@@ -11,23 +9,23 @@
 
 #ifdef PATCH_LOADER_USE_BASE64
 
-// A very simplistic decode-only base64 implementation.
+// A very simplistic Base64 implementation.
 modify patchLoader
 	// base64 character set.
 	_base64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
 
 	// Decode a base64-encoded string.
-	decode(str) {
+	decode(buf) {
 		local c0, c1, c2, e0, e1, e2, e3, i, r;
 
 		r = '';
 		i = 1;
-		str = rexReplace('[^A-Za-z0-9\+\/\=]', str, '');
-		while(i <= str.length) {
-			e0 = _base64.find(str.substr(i, 1)) - 1;
-			e1 = _base64.find(str.substr(i + 1, 1)) - 1;
-			e2 = _base64.find(str.substr(i + 2, 1)) - 1;
-			e3 = _base64.find(str.substr(i + 3, 1)) - 1;
+		buf = rexReplace('[^A-Za-z0-9\+\/\=]', buf, '');
+		while(i <= buf.length) {
+			e0 = _base64.find(buf.substr(i, 1)) - 1;
+			e1 = _base64.find(buf.substr(i + 1, 1)) - 1;
+			e2 = _base64.find(buf.substr(i + 2, 1)) - 1;
+			e3 = _base64.find(buf.substr(i + 3, 1)) - 1;
 
 			i += 4;
 
@@ -44,7 +42,7 @@ modify patchLoader
 				r = r + makeString(c2);
 			}
 		}
-		return(cipher(r));
+		return(r);
 	}
 ;
 

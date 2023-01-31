@@ -2,8 +2,6 @@
 //
 // patchLoaderDebug.t
 //
-#include <file.h>
-#include <strbuf.h>
 #include <tadsgen.h>
 #include <dynfunc.h>
 

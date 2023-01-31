@@ -45,3 +45,12 @@ LIBRARY CONTENTS
 
 	doc/README.txt
 		This file
+
+	scripts/patchBootstrap.t
+		An example patch bootloader file.
+
+	scripts/patchgen.sh
+		A bash script for signing and encoding a patch
+	
+	scripts/patchSource.t
+		An example patch file

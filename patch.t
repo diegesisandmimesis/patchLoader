@@ -1,3 +1,0 @@
-function() {
-	"Patch patch patch. ";
-}
